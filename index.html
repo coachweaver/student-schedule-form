@@ -153,106 +153,137 @@
     </form>
   </div>
 
-  <script>
-    // 1) Configure dropdown options here
-    const GRADE_OPTIONS = ["9","10","11","12"];
-    const TERM_OPTIONS = ["Fall 2025","Spring 2026"];
+ <script>
+  // 1) Configure dropdown options here
+  const GRADE_OPTIONS = ["9","10","11","12"];
+  const TERM_OPTIONS = ["Fall 2025","Spring 2026"];
 
+  const CLASS_OPTIONS = [
+    "Senior Project / Internship",
+    "OPEN",
+    "College - GMC campus (Benson)",
+    "College - Main campus (Barton)",
+    "College Seminar",
+    "Ms. Bailey",
+    "Mr. Cook",
+    "Ms. Earle",
+    "Coach Elliott",
+    "Mr. Fitzgerald",
+    "Mr. Frans",
+    "Mr. Gallion",
+    "Ms. Gonzalez",
+    "Ms. Grissop",
+    "Ms. Hunter",
+    "Ms. Kirkland",
+    "Mr. LaPoe",
+    "Ms. LaPoe",
+    "Mr. Long",
+    "Mr. Lowman",
+    "Mr. MacDonald",
+    "Mr. McCollum",
+    "Ms. Meyers",
+    "Ms. Morris",
+    "Coach Owens",
+    "Ms. Oyervides",
+    "Ms. Quinlan",
+    "Mr. Rainey",
+    "Ms. Robinson",
+    "Ms. Rouse",
+    "Ms. Sawicki",
+    "Ms. Schonhar",
+    "Ms. Summey",
+    "Ms. Teel",
+    "Coach Weaver",
+    "Other"
+  ];
 
-    const CLASS_OPTIONS = [
-      "Senior Project / Internship",
-      "OPEN",
-      "College - GMC campus (Benson)",
-      "College - Main campus (Barton)",
-      "College Seminar",
-      "Ms. Bailey",
-      "Mr. Cook",
-      "Ms. Earle",
-      "Coach Elliott",
-      "Mr. Fitzgerald",
-      "Mr. Frans",
-      "Mr. Gallion",
-      "Ms. Gonzalez",
-      "Ms. Grissop",
-      "Ms. Hunter",
-      "Ms. Kirkland",
-      "Mr. LaPoe",
-      "Ms. LaPoe",
-      "Mr. Long",
-      "Mr. Lowman",
-      "Mr. MacDonald",
-      "Mr. McCollum",
-      "Ms. Meyers",
-      "Ms. Morris",
-      "Coach Owens",
-      "Ms. Oyervides",
-      "Ms. Quinlan",
-      "Mr. Rainey",
-      "Ms. Robinson",
-      "Ms. Rouse",
-      "Ms. Sawicki",
-      "Ms. Schonhar",
-      "Ms. Summey",
-      "Ms. Teel",
-      "Coach Weaver",
-      "Other"
-    ];
-
-    // 2) Populate all dropdowns
-    function fillOptions(el, list){
-      list.forEach(v=>{
-        const o=document.createElement('option'); o.value=v; o.textContent=v; el.appendChild(o);
-      });
-    }
-    fillOptions(document.getElementById('studentGrade'), GRADE_OPTIONS);
-    fillOptions(document.getElementById('term'), TERM_OPTIONS);
-    fillOptions(document.getElementById('blazerBlock'), CLASS_OPTIONS);
-    ['s1A','s2A','s3A','s4A','s1B','s2B','s3B','s4B'].forEach(id=>fillOptions(document.getElementById(id), CLASS_OPTIONS));
-
-    // 3) Form submission that relays to Google Forms
-    const submitBtn = document.getElementById('submitBtn');
-    const successEl = document.getElementById('success');
-    const errorEl = document.getElementById('error');
-
-    submitBtn.addEventListener('click', function(e){
-      e.preventDefault();
-      successEl.style.display='none';
-      errorEl.style.display='none';
-
-      // basic UI validation
-      const reqFields = [
-        '#firstName','#lastName','#studentGrade','#blazerBlock','#term',
-        '#s1A','#s2A','#s3A','#s4A','#s1B','#s2B','#s3B','#s4B'
-      ];
-      let ok = true;
-      for(const sel of reqFields){ const el=document.querySelector(sel); if(!el.value){ ok=false; el.focus(); break; } }
-      if(!ok){ errorEl.textContent = 'Please complete all required fields.'; errorEl.style.display='block'; return; }
-
-      // copy UI values into the hidden Google Form fields
-      document.getElementById('g_firstName').value   = document.getElementById('firstName').value;
-      document.getElementById('g_lastName').value    = document.getElementById('lastName').value;
-      document.getElementById('g_studentGrade').value= document.getElementById('studentGrade').value;
-      document.getElementById('g_blazerBlock').value = document.getElementById('blazerBlock').value;
-      document.getElementById('g_term').value        = document.getElementById('term').value;
-      document.getElementById('g_1A').value = document.getElementById('s1A').value;
-      document.getElementById('g_2A').value = document.getElementById('s2A').value;
-      document.getElementById('g_3A').value = document.getElementById('s3A').value;
-      document.getElementById('g_4A').value = document.getElementById('s4A').value;
-      document.getElementById('g_1B').value = document.getElementById('s1B').value;
-      document.getElementById('g_2B').value = document.getElementById('s2B').value;
-      document.getElementById('g_3B').value = document.getElementById('s3B').value;
-      document.getElementById('g_4B').value = document.getElementById('s4B').value;
-      document.getElementById('g_notes').value = document.getElementById('notes').value || '';
-
-      // submit to Google Forms by posting the hidden form into the hidden iframe
-      document.getElementById('googleForm').submit();
-      successEl.style.display='block';
-      setTimeout(()=>{
-        document.getElementById('ui-form').reset();
-        ["s1A","s2A","s3A","s4A","s1B","s2B","s3B","s4B"].forEach(id=>document.getElementById(id).selectedIndex=0);
-        document.getElementById('notes').value='';
-      }, 400);
+  // 2) Populate all dropdowns
+  function fillOptions(el, list){
+    list.forEach(v=>{
+      const o = document.createElement('option');
+      o.value = v;
+      o.textContent = v;
+      el.appendChild(o);
     });
-  </script>
+  }
+  fillOptions(document.getElementById('studentGrade'), GRADE_OPTIONS);
+  fillOptions(document.getElementById('term'), TERM_OPTIONS);
+  fillOptions(document.getElementById('blazerBlock'), CLASS_OPTIONS);
+  ['s1A','s2A','s3A','s4A','s1B','s2B','s3B','s4B']
+    .forEach(id => fillOptions(document.getElementById(id), CLASS_OPTIONS));
+
+  // 3) Form submission that relays to Google Forms
+  const submitBtn = document.getElementById('submitBtn');
+  const successEl = document.getElementById('success');
+  const errorEl = document.getElementById('error');
+  const iframe = document.getElementById('hidden_iframe');
+
+  let waitingForGoogle = false;
+
+  // When Google finishes loading in the hidden iframe, treat as submitted
+  iframe.addEventListener('load', () => {
+    if (!waitingForGoogle) return;
+    waitingForGoogle = false;
+    successEl.style.display = 'block';
+    // Clear form only after Google loads
+    document.getElementById('ui-form').reset();
+    ["s1A","s2A","s3A","s4A","s1B","s2B","s3B","s4B"].forEach(
+      id => document.getElementById(id).selectedIndex = 0
+    );
+    document.getElementById('notes').value = '';
+  });
+
+  submitBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    successEl.style.display = 'none';
+    errorEl.style.display = 'none';
+
+    // basic UI validation
+    const reqFields = [
+      '#firstName','#lastName','#studentGrade','#blazerBlock','#term',
+      '#s1A','#s2A','#s3A','#s4A','#s1B','#s2B','#s3B','#s4B'
+    ];
+    for (const sel of reqFields){
+      const el = document.querySelector(sel);
+      if (!el.value){
+        errorEl.textContent = 'Please complete all required fields.';
+        errorEl.style.display = 'block';
+        el.focus();
+        return;
+      }
+    }
+
+    // copy UI values into the hidden Google Form fields
+    document.getElementById('g_firstName').value    = document.getElementById('firstName').value;
+    document.getElementById('g_lastName').value     = document.getElementById('lastName').value;
+    document.getElementById('g_studentGrade').value = document.getElementById('studentGrade').value;
+    document.getElementById('g_blazerBlock').value  = document.getElementById('blazerBlock').value;
+    document.getElementById('g_term').value         = document.getElementById('term').value;
+    document.getElementById('g_1A').value           = document.getElementById('s1A').value;
+    document.getElementById('g_2A').value           = document.getElementById('s2A').value;
+    document.getElementById('g_3A').value           = document.getElementById('s3A').value;
+    document.getElementById('g_4A').value           = document.getElementById('s4A').value;
+    document.getElementById('g_1B').value           = document.getElementById('s1B').value;
+    document.getElementById('g_2B').value           = document.getElementById('s2B').value;
+    document.getElementById('g_3B').value           = document.getElementById('s3B').value;
+    document.getElementById('g_4B').value           = document.getElementById('s4B').value;
+    document.getElementById('g_notes').value        = document.getElementById('notes').value || '';
+
+    // submit to Google Forms by posting the hidden form into the hidden iframe
+    waitingForGoogle = true;
+    document.getElementById('googleForm').submit();
+
+    // Fallback: if Google never loads in 8 seconds, show error and do not clear
+    setTimeout(() => {
+      if (waitingForGoogle){
+        waitingForGoogle = false;
+        errorEl.textContent = 'Unable to confirm submission. Please try again.';
+        errorEl.style.display = 'block';
+      }
+    }, 8000);
+  });
+</script>
+
 </body>
 </html>
+
