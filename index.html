@@ -4,559 +4,453 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GMC Student Schedule Collector</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Modern "Slate" Palette */
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --primary: #4f46e5; /* Indigo */
-      --primary-hover: #4338ca;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --ring: #c7d2fe;
-      
-      /* Status Colors */
-      --danger: #ef4444;
-      --success: #10b981;
-      
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      
-      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+      /* Palette extracted from user image */
+      --red: #9e1b25;
+      --blue: #0066ad;
+      --green: #254030;
+      --white: #ffffff;
+      --silver: #b5b7bc;
+      --black: #111111;
+
+      --border: 3px solid var(--black);
+      --shadow: 6px 6px 0px var(--black);
+      --radius: 8px; /* Slightly rounded, but still blocky */
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background-color: var(--bg);
-      color: var(--text-main);
-      font-family: 'Inter', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      line-height: 1.5;
-    }
-
-    .wrap {
-      max-width: 960px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-
-    /* Header Styling */
-    header {
-      margin-bottom: 32px;
+      background-color: #f0f0f0; /* Light gray background to pop the cards */
+      color: var(--black);
+      font-family: 'Archivo', sans-serif;
+      height: 100vh;
       display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden; /* Enforce single screen */
+    }
+
+    /* THE BENTO CONTAINER */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr; /* Fixed sidebar width, flexible main area */
+      grid-template-rows: auto 1fr;
+      gap: 20px;
+      width: 95vw;
+      max-width: 1400px;
+      height: 90vh;
+      padding: 10px;
+    }
+
+    /* GENERIC CARD STYLES */
+    .box {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* HEADER (Top Right) */
+    .header-box {
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
+      background: var(--red);
+      color: var(--white);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
       justify-content: space-between;
-      align-items: flex-end;
+      height: 80px;
     }
 
     h1 {
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: -0.025em;
-      margin: 0 0 8px 0;
-      color: var(--text-main);
-    }
-
-    .subtitle {
-      font-size: 14px;
-      color: var(--text-muted);
+      font-weight: 900;
+      font-size: 28px;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .badge {
-      background: #e0e7ff;
-      color: var(--primary);
-      padding: 4px 12px;
-      border-radius: 999px;
+      background: var(--black);
+      color: var(--white);
+      padding: 5px 15px;
+      font-weight: 700;
+      border-radius: 999px; /* Pill shape */
       font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.025em;
-      text-transform: uppercase;
     }
 
-    /* Card Containers */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
+    /* PERSONAL INFO (Sidebar - Left) */
+    .info-box {
+      grid-column: 1 / 2;
+      grid-row: 1 / 3;
+      background: var(--silver);
     }
 
-    .section-title {
-      font-size: 16px;
-      font-weight: 600;
+    .info-box h2 {
+      margin-top: 0;
+      font-size: 20px;
+      border-bottom: 3px solid var(--black);
+      padding-bottom: 10px;
       margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
-    /* Form Inputs */
-    .grid-form {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    .field-group {
+      margin-bottom: 15px;
     }
 
     label {
+      display: block;
+      font-weight: 800;
       font-size: 13px;
-      font-weight: 500;
-      color: var(--text-main);
+      margin-bottom: 5px;
+      text-transform: uppercase;
     }
 
-    .req { color: var(--danger); }
-
-    input[type="text"], select, textarea {
+    input, select, textarea {
       width: 100%;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 14px;
+      padding: 10px;
+      border: 2px solid var(--black);
+      background: var(--white);
       font-family: inherit;
-      color: var(--text-main);
-      background: #fff;
-      transition: all 0.2s ease;
+      font-weight: 600;
+      border-radius: 4px;
       outline: none;
-      -webkit-appearance: none; /* Remove default browser styling */
-      appearance: none;
+      transition: all 0.1s;
     }
     
-    /* Add custom arrow for selects */
-    select {
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-      background-position: right 0.5rem center;
-      background-repeat: no-repeat;
-      background-size: 1.5em 1.5em;
-      padding-right: 2.5rem;
-    }
-
     input:focus, select:focus, textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--ring);
+      background: #fff8a0; /* Brutalist highlight color */
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 var(--black);
     }
-    
-    input::placeholder { color: #cbd5e1; }
 
-    /* Schedule Section - Redesigned */
-    .schedule-container {
+    /* SCHEDULE AREA (Main Content) */
+    .schedule-box {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
       display: grid;
-      gap: 24px;
+      grid-template-columns: 1fr 1fr; /* Split A/B */
+      gap: 20px;
+      background: transparent;
+      box-shadow: none;
+      border: none;
+      padding: 0;
     }
 
-    .day-group {
-      background: #fcfcfc; /* subtle contrast */
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border);
+    .day-column {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
 
     .day-header {
-      padding: 12px 16px;
-      font-weight: 600;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border-bottom: 1px solid var(--border);
+      padding: 15px;
+      text-align: center;
+      font-weight: 900;
+      font-size: 20px;
+      border-bottom: var(--border);
+      text-transform: uppercase;
     }
 
-    /* A Day Accent */
-    .day-a .day-header { background: #fff1f2; color: #be123c; }
-    .day-a .period-label { color: #be123c; background: #fff1f2; }
-    
-    /* B Day Accent */
-    .day-b .day-header { background: #eff6ff; color: #1d4ed8; }
-    .day-b .period-label { color: #1d4ed8; background: #eff6ff; }
+    .a-header { background: var(--blue); color: white; }
+    .b-header { background: var(--green); color: white; }
 
-    .slots-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      padding: 16px;
-      gap: 16px;
-    }
-
-    .slot-item {
+    .slots-container {
+      padding: 15px;
+      flex-grow: 1;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      justify-content: space-evenly;
     }
 
-    .period-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 2px 6px;
-      border-radius: 4px;
-      width: fit-content;
-    }
-
-    /* Buttons & Footer */
-    .footer {
-      display: flex;
-      justify-content: space-between;
+    .slot-row {
+      display: grid;
+      grid-template-columns: 40px 1fr;
       align-items: center;
-      margin-top: 24px;
+      gap: 10px;
     }
 
-    .btn {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      padding: 12px 24px;
-      border-radius: var(--radius-sm);
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    }
-
-    .btn:hover {
-      background: var(--primary-hover);
-      transform: translateY(-1px);
-    }
-    
-    .notice { font-size: 13px; color: var(--text-muted); }
-
-    .feedback-msg {
-      margin-top: 16px;
-      padding: 12px;
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      font-weight: 500;
-      display: none;
+    .slot-num {
+      font-weight: 900;
+      font-size: 18px;
       text-align: center;
     }
-    .success { background: #dcfce7; color: #166534; }
-    .error { background: #fee2e2; color: #991b1b; }
 
-    /* Responsiveness */
-    @media (max-width: 768px) {
-      .grid-form { grid-template-columns: 1fr; }
-      .slots-grid { grid-template-columns: 1fr; gap: 12px; }
-      .header { flex-direction: column; align-items: flex-start; gap: 10px; }
-      
-      /* Make labels visible in mobile list view */
-      .slot-item {
-        flex-direction: row;
-        align-items: center;
-      }
-      .period-label {
-        width: 40px;
-        text-align: center;
-        flex-shrink: 0;
-      }
+    /* FOOTER / SUBMIT SECTION */
+    .submit-area {
+      margin-top: auto;
+      padding-top: 15px;
     }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      padding: 15px;
+      font-weight: 800;
+      font-size: 16px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 2px solid var(--black);
+      transition: all 0.2s;
+    }
+
+    .btn-submit:hover {
+      background: var(--white);
+      color: var(--black);
+      box-shadow: 4px 4px 0 var(--red);
+      transform: translate(-2px, -2px);
+    }
+
+    .status-msg {
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 10px;
+      text-align: center;
+      min-height: 1.5em;
+    }
+
+    .error { color: var(--red); }
+    .success { color: var(--green); }
+
+    /* MEDIA QUERY for small screens */
+    @media (max-width: 900px) {
+      body { height: auto; display: block; overflow: auto; }
+      .bento-grid {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .box, .schedule-box { margin-bottom: 20px; }
+      .schedule-box { display: block; }
+      .day-column { margin-bottom: 20px; }
+    }
+
   </style>
 </head>
 <body>
 
-  <div class="wrap">
+<div class="bento-grid">
+  
+  <form id="ui-form" class="box info-box" novalidate>
+    <h2>Student Info</h2>
     
-    <header>
-      <div>
-        <h1>Schedule Collector</h1>
-        <div class="subtitle">Please enter your class details below.</div>
-      </div>
-      <div class="badge">GMC 2025</div>
-    </header>
+    <div class="field-group">
+      <label>First Name</label>
+      <input id="firstName" type="text" placeholder="Jane" required />
+    </div>
+    
+    <div class="field-group">
+      <label>Last Name</label>
+      <input id="lastName" type="text" placeholder="Doe" required />
+    </div>
 
-    <form id="ui-form" novalidate>
-      
-      <div class="card">
-        <div class="section-title">Student Information</div>
-        <div class="grid-form">
-          <div class="form-group">
-            <label for="firstName">First Name <span class="req">*</span></label>
-            <input id="firstName" name="firstName" type="text" placeholder="e.g. John" required />
-          </div>
-          <div class="form-group">
-            <label for="lastName">Last Name <span class="req">*</span></label>
-            <input id="lastName" name="lastName" type="text" placeholder="e.g. Doe" required />
-          </div>
-          <div class="form-group">
-            <label for="studentGrade">Current Grade <span class="req">*</span></label>
-            <select id="studentGrade" name="studentGrade" required>
-              <option value="" disabled selected>Select Grade</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="blazerBlock">Blazer Block <span class="req">*</span></label>
-            <select id="blazerBlock" name="blazerBlock" required>
-              <option value="" disabled selected>Select Option</option>
-            </select>
-          </div>
-          <div class="form-group" style="grid-column: 1 / -1;">
-            <label for="term">Academic Term <span class="req">*</span></label>
-            <select id="term" name="term" required>
-              <option value="" disabled selected>Select Term</option>
-            </select>
-          </div>
-        </div>
-      </div>
+    <div class="field-group">
+      <label>Grade Level</label>
+      <select id="studentGrade" required>
+        <option value="" disabled selected>-- Select --</option>
+      </select>
+    </div>
 
-      <div class="card">
-        <div class="section-title">Class Schedule</div>
-        
-        <div class="schedule-container">
-          
-          <div class="day-group day-a">
-            <div class="day-header">
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              A Day
-            </div>
-            <div class="slots-grid">
-              <div class="slot-item">
-                <span class="period-label">1A</span>
-                <select id="s1A" required><option value="" disabled selected>Select Class</option></select>
-              </div>
-              <div class="slot-item">
-                <span class="period-label">2A</span>
-                <select id="s2A" required><option value="" disabled selected>Select Class</option></select>
-              </div>
-              <div class="slot-item">
-                <span class="period-label">3A</span>
-                <select id="s3A" required><option value="" disabled selected>Select Class</option></select>
-              </div>
-              <div class="slot-item">
-                <span class="period-label">4A</span>
-                <select id="s4A" required><option value="" disabled selected>Select Class</option></select>
-              </div>
-            </div>
-          </div>
+    <div class="field-group">
+      <label>Blazer Block</label>
+      <select id="blazerBlock" required>
+        <option value="" disabled selected>-- Select --</option>
+      </select>
+    </div>
 
-          <div class="day-group day-b">
-            <div class="day-header">
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              B Day
-            </div>
-            <div class="slots-grid">
-              <div class="slot-item">
-                <span class="period-label">1B</span>
-                <select id="s1B" required><option value="" disabled selected>Select Class</option></select>
-              </div>
-              <div class="slot-item">
-                <span class="period-label">2B</span>
-                <select id="s2B" required><option value="" disabled selected>Select Class</option></select>
-              </div>
-              <div class="slot-item">
-                <span class="period-label">3B</span>
-                <select id="s3B" required><option value="" disabled selected>Select Class</option></select>
-              </div>
-              <div class="slot-item">
-                <span class="period-label">4B</span>
-                <select id="s4B" required><option value="" disabled selected>Select Class</option></select>
-              </div>
-            </div>
-          </div>
+    <div class="field-group">
+      <label>Term</label>
+      <select id="term" required>
+        <option value="" disabled selected>-- Select --</option>
+      </select>
+    </div>
 
-        </div>
-      </div>
+    <div class="field-group" style="flex-grow:1; display:flex; flex-direction:column;">
+      <label>Notes</label>
+      <textarea id="notes" style="flex-grow:1; resize:none;" placeholder="Optional notes..."></textarea>
+    </div>
 
-      <div class="card">
-        <label for="notes" style="font-weight:600; margin-bottom: 8px; display:block;">Additional Notes</label>
-        <textarea id="notes" rows="3" placeholder="Anything unusual about your schedule? (Optional)"></textarea>
-        
-        <div class="feedback-msg success" id="success">
-          ✓ Success! Your schedule has been submitted. You can close this tab.
-        </div>
-        <div class="feedback-msg error" id="error">
-          ⚠ Please complete all required fields marked with *
-        </div>
+    <div class="submit-area">
+      <button id="submitBtn" class="btn-submit">Submit Schedule</button>
+      <div id="status" class="status-msg"></div>
+    </div>
+  </form>
 
-        <div class="footer">
-          <div class="notice">All inputs are secured via Google Forms</div>
-          <button class="btn" id="submitBtn">Submit Schedule</button>
-        </div>
-      </div>
-
-    </form>
-
-    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-
-    <form id="googleForm" action="https://docs.google.com/forms/d/e/1FAIpQLSe6Z6zdGlLyLkTgu2aqECkE2ivm45jFSlfln8L-X55Es2uwCQ/formResponse" method="POST" target="hidden_iframe" style="display:none">
-      <input name="entry.1765835801" id="g_firstName" />
-      <input name="entry.1295172212" id="g_lastName" />
-      <input name="entry.1092987940" id="g_studentGrade" />
-      <input name="entry.251341019" id="g_blazerBlock" />
-      <input name="entry.58541626" id="g_term" />
-      <input name="entry.1929321311" id="g_1A" />
-      <input name="entry.1709577218" id="g_2A" />
-      <input name="entry.1554923251" id="g_3A" />
-      <input name="entry.799512969" id="g_4A" />
-      <input name="entry.1105828479" id="g_1B" />
-      <input name="entry.359857162" id="g_2B" />
-      <input name="entry.1260383982" id="g_3B" />
-      <input name="entry.185667128" id="g_4B" />
-      <input name="entry.1627099109" id="g_notes" />
-    </form>
+  <div class="box header-box">
+    <h1>GMC Schedule Collector</h1>
+    <div class="badge">2025-2026</div>
   </div>
 
- <script>
-  // 1) Configure dropdown options here
+  <div class="schedule-box">
+    
+    <div class="day-column">
+      <div class="day-header a-header">A Day</div>
+      <div class="slots-container">
+        <div class="slot-row">
+          <div class="slot-num">1A</div>
+          <select id="s1A" required><option value="" disabled selected>Select class...</option></select>
+        </div>
+        <div class="slot-row">
+          <div class="slot-num">2A</div>
+          <select id="s2A" required><option value="" disabled selected>Select class...</option></select>
+        </div>
+        <div class="slot-row">
+          <div class="slot-num">3A</div>
+          <select id="s3A" required><option value="" disabled selected>Select class...</option></select>
+        </div>
+        <div class="slot-row">
+          <div class="slot-num">4A</div>
+          <select id="s4A" required><option value="" disabled selected>Select class...</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-column">
+      <div class="day-header b-header">B Day</div>
+      <div class="slots-container">
+        <div class="slot-row">
+          <div class="slot-num">1B</div>
+          <select id="s1B" required><option value="" disabled selected>Select class...</option></select>
+        </div>
+        <div class="slot-row">
+          <div class="slot-num">2B</div>
+          <select id="s2B" required><option value="" disabled selected>Select class...</option></select>
+        </div>
+        <div class="slot-row">
+          <div class="slot-num">3B</div>
+          <select id="s3B" required><option value="" disabled selected>Select class...</option></select>
+        </div>
+        <div class="slot-row">
+          <div class="slot-num">4B</div>
+          <select id="s4B" required><option value="" disabled selected>Select class...</option></select>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+<form id="googleForm" action="https://docs.google.com/forms/d/e/1FAIpQLSe6Z6zdGlLyLkTgu2aqECkE2ivm45jFSlfln8L-X55Es2uwCQ/formResponse" method="POST" target="hidden_iframe" style="display:none">
+  <input name="entry.1765835801" id="g_firstName" />
+  <input name="entry.1295172212" id="g_lastName" />
+  <input name="entry.1092987940" id="g_studentGrade" />
+  <input name="entry.251341019" id="g_blazerBlock" />
+  <input name="entry.58541626" id="g_term" />
+  <input name="entry.1929321311" id="g_1A" />
+  <input name="entry.1709577218" id="g_2A" />
+  <input name="entry.1554923251" id="g_3A" />
+  <input name="entry.799512969" id="g_4A" />
+  <input name="entry.1105828479" id="g_1B" />
+  <input name="entry.359857162" id="g_2B" />
+  <input name="entry.1260383982" id="g_3B" />
+  <input name="entry.185667128" id="g_4B" />
+  <input name="entry.1627099109" id="g_notes" />
+</form>
+
+<script>
+  // CONFIG
   const GRADE_OPTIONS = ["9","10","11","12"];
   const TERM_OPTIONS = ["Fall 2025","Spring 2026"];
-
   const CLASS_OPTIONS = [
-    "Senior Project / Internship",
-    "OPEN",
-    "College - GMC campus (Benson)",
-    "College - Main campus (Barton)",
-    "College Seminar",
-    "Ms. Bailey",
-    "Mr. Cook",
-    "Ms. Earle",
-    "Coach Elliott",
-    "Mr. Fitzgerald",
-    "Mr. Frans",
-    "Mr. Gallion",
-    "Ms. Gonzalez",
-    "Ms. Grissop",
-    "Ms. Hunter",
-    "Ms. Kirkland",
-    "Mr. LaPoe",
-    "Ms. LaPoe",
-    "Mr. Long",
-    "Mr. Lowman",
-    "Mr. MacDonald",
-    "Mr. McCollum",
-    "Ms. Meyers",
-    "Ms. Morris",
-    "Coach Owens",
-    "Ms. Oyervides",
-    "Ms. Quinlan",
-    "Mr. Rainey",
-    "Ms. Robinson",
-    "Ms. Rouse",
-    "Ms. Sawicki",
-    "Ms. Schonhar",
-    "Ms. Summey",
-    "Ms. Teel",
-    "Coach Weaver",
-    "Other"
+    "Senior Project / Internship", "OPEN", "College - GMC campus (Benson)", "College - Main campus (Barton)",
+    "College Seminar", "Ms. Bailey", "Mr. Cook", "Ms. Earle", "Coach Elliott", "Mr. Fitzgerald",
+    "Mr. Frans", "Mr. Gallion", "Ms. Gonzalez", "Ms. Grissop", "Ms. Hunter", "Ms. Kirkland",
+    "Mr. LaPoe", "Ms. LaPoe", "Mr. Long", "Mr. Lowman", "Mr. MacDonald", "Mr. McCollum",
+    "Ms. Meyers", "Ms. Morris", "Coach Owens", "Ms. Oyervides", "Ms. Quinlan", "Mr. Rainey",
+    "Ms. Robinson", "Ms. Rouse", "Ms. Sawicki", "Ms. Schonhar", "Ms. Summey", "Ms. Teel",
+    "Coach Weaver", "Other"
   ];
 
-  // 2) Populate all dropdowns
-  function fillOptions(el, list){
-    list.forEach(v=>{
+  // POPULATE UI
+  const fill = (id, list) => {
+    const el = document.getElementById(id);
+    list.forEach(v => {
       const o = document.createElement('option');
-      o.value = v;
-      o.textContent = v;
+      o.value = o.textContent = v;
       el.appendChild(o);
     });
-  }
-  fillOptions(document.getElementById('studentGrade'), GRADE_OPTIONS);
-  fillOptions(document.getElementById('term'), TERM_OPTIONS);
-  fillOptions(document.getElementById('blazerBlock'), CLASS_OPTIONS);
-  ['s1A','s2A','s3A','s4A','s1B','s2B','s3B','s4B']
-    .forEach(id => fillOptions(document.getElementById(id), CLASS_OPTIONS));
+  };
 
-  // 3) Form submission that relays to Google Forms
+  fill('studentGrade', GRADE_OPTIONS);
+  fill('term', TERM_OPTIONS);
+  fill('blazerBlock', CLASS_OPTIONS);
+  ['s1A','s2A','s3A','s4A','s1B','s2B','s3B','s4B'].forEach(id => fill(id, CLASS_OPTIONS));
+
+  // LOGIC
   const submitBtn = document.getElementById('submitBtn');
-  const successEl = document.getElementById('success');
-  const errorEl = document.getElementById('error');
+  const statusEl = document.getElementById('status');
   const iframe = document.getElementById('hidden_iframe');
+  let waiting = false;
 
-  let waitingForGoogle = false;
-
-  // When Google finishes loading in the hidden iframe, treat as submitted
-  iframe.addEventListener('load', () => {
-    if (!waitingForGoogle) return;
-    waitingForGoogle = false;
-    successEl.style.display = 'block';
-    submitBtn.textContent = 'Submitted';
+  iframe.onload = () => {
+    if(!waiting) return;
+    waiting = false;
+    statusEl.textContent = 'Submitted successfully! You may close this tab.';
+    statusEl.className = 'status-msg success';
     submitBtn.disabled = true;
-    
-    // Clear form only after Google loads
+    submitBtn.textContent = 'Done';
     document.getElementById('ui-form').reset();
-    ["s1A","s2A","s3A","s4A","s1B","s2B","s3B","s4B"].forEach(
-      id => document.getElementById(id).selectedIndex = 0
-    );
-    document.getElementById('notes').value = '';
-    
-    // Scroll to success message
-    successEl.scrollIntoView({behavior: 'smooth', block: 'center'});
-  });
+  };
 
-  submitBtn.addEventListener('click', function(e){
+  submitBtn.onclick = (e) => {
     e.preventDefault();
-    successEl.style.display = 'none';
-    errorEl.style.display = 'none';
-    submitBtn.textContent = 'Submitting...';
+    statusEl.textContent = '';
+    statusEl.className = 'status-msg';
 
-    // basic UI validation
-    const reqFields = [
-      '#firstName','#lastName','#studentGrade','#blazerBlock','#term',
-      '#s1A','#s2A','#s3A','#s4A','#s1B','#s2B','#s3B','#s4B'
-    ];
-    
-    let hasError = false;
-    for (const sel of reqFields){
-      const el = document.querySelector(sel);
-      // Reset border
-      el.style.borderColor = '';
-      
-      if (!el.value){
-        // Highlight empty field
-        el.style.borderColor = '#ef4444'; 
-        hasError = true;
+    const req = ['#firstName','#lastName','#studentGrade','#blazerBlock','#term','#s1A','#s2A','#s3A','#s4A','#s1B','#s2B','#s3B','#s4B'];
+    for(let r of req) {
+      if(!document.querySelector(r).value) {
+        statusEl.textContent = 'Missing required fields!';
+        statusEl.className = 'status-msg error';
+        return;
       }
     }
-    
-    if(hasError) {
-      errorEl.textContent = 'Please complete all required fields marked in red.';
-      errorEl.style.display = 'block';
-      submitBtn.textContent = 'Submit Schedule';
-      return;
-    }
 
-    // copy UI values into the hidden Google Form fields
-    document.getElementById('g_firstName').value    = document.getElementById('firstName').value;
-    document.getElementById('g_lastName').value     = document.getElementById('lastName').value;
+    // Map values
+    document.getElementById('g_firstName').value = document.getElementById('firstName').value;
+    document.getElementById('g_lastName').value = document.getElementById('lastName').value;
     document.getElementById('g_studentGrade').value = document.getElementById('studentGrade').value;
-    document.getElementById('g_blazerBlock').value  = document.getElementById('blazerBlock').value;
-    document.getElementById('g_term').value         = document.getElementById('term').value;
-    document.getElementById('g_1A').value           = document.getElementById('s1A').value;
-    document.getElementById('g_2A').value           = document.getElementById('s2A').value;
-    document.getElementById('g_3A').value           = document.getElementById('s3A').value;
-    document.getElementById('g_4A').value           = document.getElementById('s4A').value;
-    document.getElementById('g_1B').value           = document.getElementById('s1B').value;
-    document.getElementById('g_2B').value           = document.getElementById('s2B').value;
-    document.getElementById('g_3B').value           = document.getElementById('s3B').value;
-    document.getElementById('g_4B').value           = document.getElementById('s4B').value;
-    document.getElementById('g_notes').value        = document.getElementById('notes').value || '';
+    document.getElementById('g_blazerBlock').value = document.getElementById('blazerBlock').value;
+    document.getElementById('g_term').value = document.getElementById('term').value;
+    document.getElementById('g_1A').value = document.getElementById('s1A').value;
+    document.getElementById('g_2A').value = document.getElementById('s2A').value;
+    document.getElementById('g_3A').value = document.getElementById('s3A').value;
+    document.getElementById('g_4A').value = document.getElementById('s4A').value;
+    document.getElementById('g_1B').value = document.getElementById('s1B').value;
+    document.getElementById('g_2B').value = document.getElementById('s2B').value;
+    document.getElementById('g_3B').value = document.getElementById('s3B').value;
+    document.getElementById('g_4B').value = document.getElementById('s4B').value;
+    document.getElementById('g_notes').value = document.getElementById('notes').value;
 
-    // submit to Google Forms by posting the hidden form into the hidden iframe
-    waitingForGoogle = true;
+    waiting = true;
+    statusEl.textContent = 'Sending...';
     document.getElementById('googleForm').submit();
 
-    // Fallback: if Google never loads in 8 seconds, show error and do not clear
     setTimeout(() => {
-      if (waitingForGoogle){
-        waitingForGoogle = false;
-        errorEl.textContent = 'Taking too long. Check your internet connection.';
-        errorEl.style.display = 'block';
-        submitBtn.textContent = 'Submit Schedule';
+      if(waiting) {
+        waiting = false;
+        statusEl.textContent = 'Error: No confirmation from Google. Check connection.';
+        statusEl.className = 'status-msg error';
       }
     }, 8000);
-  });
+  };
 </script>
 
 </body>
